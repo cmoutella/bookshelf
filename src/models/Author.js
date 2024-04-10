@@ -8,4 +8,4 @@ const authorScheema = new mongoose.Schema({
 
 const author = mongoose.model("authors", authorScheema)
 
-export default author
+export { author, authorScheema }

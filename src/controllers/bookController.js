@@ -1,6 +1,26 @@
-import book from "../models/Book.js";
+import { author } from "../models/Author.js";
+import { book } from "../models/Book.js";
 
 class BookController {
+  static async create (req, res) {
+    const newBook = req.body
+    try {
+      const foundAuthor = await author.findById(newBook.author)
+
+      const bookData = {
+        ...newBook,
+        author: {...foundAuthor._doc}
+      }
+
+      const createdBook = await book.create(bookData)
+
+      res.status(201).json({message: 'Success!', book: createdBook})
+    }
+    catch (err) {
+      res.status(500).json({message: 'Não foi possível criar um livro', erro: err.message})
+    }
+  }
+
   static async listAll (req, res) {
     try {    
       const manyBooks = await book.find({})
@@ -20,14 +40,28 @@ class BookController {
     }
   }
 
-  static async create (req, res) {
+  static async listByPublisher (req, res) {
+    const publishr = req.query.editora
     try {
-      const newBook = await book.create(req.body)
-
-      res.status(201).json({message: 'Success!', book: newBook})
+      const booksByPublisher = await book.find({ publisher: publishr})
+      res.status(200).json(booksByPublisher)
+    } catch (err) {
+      res.status(500).json({message: 'Houve um problema na requisição'})
     }
-    catch (err) {
-      res.status(500).json({message: 'Não foi possível criar um livro', erro: err.message})
+  }
+
+  static async listByAuthor (req, res) {
+    const searched = req.query.autor
+    const sanitizedSearched = String(searched).replace('_', ' ')
+    
+    try {
+      const booksByAuthor = await book.find({ 'author.name': sanitizedSearched })
+      if (booksByAuthor.length <= 0) {
+        res.status(200).json({message: "Empty!", searchedBy: sanitizedSearched, books: booksByAuthor}) 
+      }
+      res.status(200).json({message: "Success!", searchedBy: sanitizedSearched, books: booksByAuthor})
+    } catch (err) {
+      res.status(500).json({message: 'Houve um problema na requisição'})
     }
   }
 

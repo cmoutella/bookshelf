@@ -6,6 +6,8 @@ const routes = express.Router()
 // LIST
 routes.get("/livros", BookController.listAll)
 
+routes.get("/livros/busca", BookController.listByAuthor)
+
 routes.get("/livros/:id", BookController.listById)
 
 // CREATE
