@@ -1,12 +1,15 @@
-import { Query } from "mongoose";
 import { author, AuthorInterface } from "../models/Author";
 import { book, BookInterface } from "../models/Book";
-import { deserialize } from "mongodb";
-import { stringify } from "nodemon/lib/utils/index.js";
+import { Request, Response } from "express";
 
 class BookController {
-  static async create(req, res) {
-    const newBook = req.body;
+  static async create(req: Request, res: Response) {
+    if (!req.body) {
+      res.status(500).json({ message: "Missing request data" });
+    }
+
+    const newBook = req.body as BookInterface;
+
     try {
       const authorData = await author.findById(newBook.author);
 
@@ -16,7 +19,7 @@ class BookController {
 
         const bookData: BookInterface = {
           ...newBook,
-          author: authorData,
+          author: authorData as AuthorInterface,
         };
 
         const createdBook = await book.create(bookData);
@@ -30,23 +33,23 @@ class BookController {
     } catch (err) {
       res.status(500).json({
         message: "Não foi possível criar um livro",
-        erro: err.message,
+        erro: (err as Error).message,
       });
     }
   }
 
-  static async listAll(req, res) {
+  static async listAll(req: Request, res: Response) {
     try {
       const manyBooks = await book.find({});
       res.status(200).json(manyBooks);
     } catch (err) {
       res
         .status(500)
-        .json({ message: "Falha na requisição", erro: err.message });
+        .json({ message: "Falha na requisição", erro: (err as Error).message });
     }
   }
 
-  static async listById(req, res) {
+  static async listById(req: Request, res: Response) {
     const id = req.params.id;
     try {
       const oneBook = await book.findById(id);
@@ -56,7 +59,7 @@ class BookController {
     }
   }
 
-  static async listByPublisher(req, res) {
+  static async listByPublisher(req: Request, res: Response) {
     const publishr = req.query.editora;
     try {
       const booksByPublisher = await book.find({ publisher: publishr });
@@ -66,7 +69,7 @@ class BookController {
     }
   }
 
-  static async listByAuthor(req, res) {
+  static async listByAuthor(req: Request, res: Response) {
     const searched = req.query.autor;
     const sanitizedSearched = String(searched).replace("_", " ");
 
@@ -91,25 +94,28 @@ class BookController {
     }
   }
 
-  static async update(req, res) {
+  static async update(req: Request, res: Response) {
     const id = req.params.id;
     try {
       await book.findByIdAndUpdate(id, req.body);
       res.status(200).json({ message: `Livro atualizado com sucesso` });
     } catch (err) {
-      res
-        .status(500)
-        .json({ message: "Falha na atualização", erro: err.message });
+      res.status(500).json({
+        message: "Falha na atualização",
+        erro: (err as Error).message,
+      });
     }
   }
 
-  static async delete(req, res) {
+  static async delete(req: Request, res: Response) {
     const id = req.params.id;
     try {
       await book.findByIdAndDelete(id);
       res.status(200).json(`Livro removido com sucesso`);
     } catch (err) {
-      res.status(500).json({ message: "Falha na exclusão", erro: err.message });
+      res
+        .status(500)
+        .json({ message: "Falha na exclusão", erro: (err as Error).message });
     }
   }
 }
