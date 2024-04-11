@@ -1,18 +1,21 @@
-import express from "express";
 import connectToDB from "./config/dbConnect";
-import routes from "./routes/index";
+import express from "express";
+import { router } from "./routes";
 
-const connection = await connectToDB();
+export default class App {
+  public server: express.Application;
 
-connection.on("error", (err) => {
-  console.error("erro de conexao", err);
-});
+  constructor() {
+    this.server = express();
+    this.middleware();
+    this.router();
+  }
 
-connection.once("open", () => {
-  console.log("DB conectado com sucesso");
-});
+  private middleware() {
+    this.server.use(express.json());
+  }
 
-const app = express();
-routes(app);
-
-export default app;
+  private router() {
+    this.server.use(router);
+  }
+}

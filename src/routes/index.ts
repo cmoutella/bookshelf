@@ -1,14 +1,16 @@
-import express from "express";
+import type { Request, Response } from "express";
+import express, { Router } from "express";
 import books from "./booksRoutes";
 import authors from "./authorsRoutes";
 
-const routes = (app) => {
-  app.route("/").get((req, res) => {
-    res.status(200).send("Bem vindo a livraria");
-  });
+const router: Router = Router();
 
-  app.use(express.json(), books);
-  app.use(express.json(), authors);
-};
+//Routes
+router.get("/", (req: Request, res: Response) => {
+  res.status(200).send("Bem vinde");
+});
 
-export default routes;
+router.use(express.json(), books);
+router.use(express.json(), authors);
+
+export { router };
