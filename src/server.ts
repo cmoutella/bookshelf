@@ -7,7 +7,7 @@ const PORT = 3000;
 (async () => {
   try {
     const db = await connectToDB();
-    console.log("MongoDB connected to", db.name);
+    console.log("MongoDB connected");
   } catch (error) {
     console.error(error);
   }

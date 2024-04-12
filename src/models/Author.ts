@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 
 interface AuthorInterface {
-  id: string;
+  id: ObjectId;
   name: string;
   nationality?: string;
 }

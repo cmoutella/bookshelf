@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import { AuthorInterface, authorScheema } from "./Author";
 
 interface BookInterface {
-  id: string;
+  id: ObjectId;
   author: AuthorInterface;
   title: string;
   publisher?: string;

@@ -1,34 +1,26 @@
-import { author, AuthorInterface } from "../models/Author";
+import { author } from "../models/Author";
 import { book, BookInterface } from "../models/Book";
 import { Request, Response } from "express";
+import { Document } from "mongodb";
 
 class BookController {
   static async create(req: Request, res: Response) {
-    if (!req.body) {
-      res.status(500).json({ message: "Missing request data" });
-    }
-
-    const newBook = req.body as BookInterface;
-
+    const newBook = req.body;
     try {
-      const authorData = await author.findById(newBook.author);
+      const authorData: Document | null = await author.findById(newBook.author);
 
       if (authorData) {
-        // const foundAuthor = stringify(authorData)
-        // const sanitizedAuthor = JSON.parse(foundAuthor)
-
         const bookData: BookInterface = {
           ...newBook,
-          author: authorData as AuthorInterface,
+          author: { ...authorData._doc },
         };
 
+        console.log({ ...authorData._doc });
         const createdBook = await book.create(bookData);
 
         res.status(201).json({ message: "Success!", book: createdBook });
       } else {
-        res
-          .status(204)
-          .json({ message: "Não foi possível encontrar este autor." });
+        throw new Error("Não foi possível encontrar este autor.");
       }
     } catch (err) {
       res.status(500).json({
